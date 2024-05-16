@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "neva-edu-bot"
+version = "0.1.0"
+description = ""
+authors = ["saladware <saladware46@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+aiogram = "^3.6.0"
+pydantic-settings = "^2.2.1"
+beautifulsoup4 = "^4.12.3"
+dateparser = "^1.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
