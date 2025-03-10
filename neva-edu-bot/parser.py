@@ -27,7 +27,7 @@ class Bs4NewsParser(BaseNewsParser):
                 return await response.text()
 
     @staticmethod
-    def parse_datetime(value) -> datetime:
+    def parse_datetime(value: str) -> datetime:
         result = dateparser.parse(value, languages=["ru"])
         if result is None:
             raise Exception("something went wrong while parsing datetime")

@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
-        "env_prefix": "NEVAEDU_"
+        "env_prefix": "NEVAEDU_",
     }
 
     bot_token: str
@@ -16,4 +16,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()  # type: ignore
+    return Settings.model_validate({})

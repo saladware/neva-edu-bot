@@ -25,7 +25,7 @@ class Service:
 
         await self.bot.send_message(
             chat_id=self.chat_id,
-            text=f"{'⚠️ ' if post.important else ''}<a href=\"{post.link}\"><b>{post.title}</b></a>\n\n{post.description}\n\n{hash_tagged(post.category)} {' '.join(map(hash_tagged, post.keywords))}",
+            text=f'{"⚠️ " if post.important else ""}<a href="{post.link}"><b>{post.title}</b></a>\n\n{post.description}\n\n{post.posted_at:%d.%m.%Y %H:%M}\n\n{hash_tagged(post.category)} {" ".join(map(hash_tagged, post.keywords))}',
         )
 
     async def start(self):
