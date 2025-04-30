@@ -2,8 +2,20 @@ import asyncio
 
 from aiogram import Bot
 
-from .parser import BaseNewsParser
-from .types import NewsPost
+from src.parser import BaseNewsParser
+from src.types import NewsPost
+
+
+def format_post(post: NewsPost) -> str:
+    def hash_tagged(value: str) -> str:
+        return f"#{value.strip().replace(' ', '_')}"
+
+    parts = [
+        f'{["", "⚠️ "][post.important]}<a href="{post.link}"><b>{post.title}</b></a>',
+        f"{post.description}\n\n{post.posted_at:%d.%m.%Y %H:%M}",
+        " ".join(hash_tagged(i) for i in [post.category, *post.keywords]),
+    ]
+    return "\n\n".join(parts)
 
 
 class Service:
@@ -19,16 +31,13 @@ class Service:
     ) -> list[NewsPost]:
         return [post for post in actual_posts if post not in old_posts]
 
-    async def send_post(self, post: NewsPost):
-        def hash_tagged(value: str):
-            return "#" + value.strip().replace(" ", "_")
-
+    async def send_post(self, post: NewsPost) -> None:
         await self.bot.send_message(
             chat_id=self.chat_id,
-            text=f'{"⚠️ " if post.important else ""}<a href="{post.link}"><b>{post.title}</b></a>\n\n{post.description}\n\n{post.posted_at:%d.%m.%Y %H:%M}\n\n{hash_tagged(post.category)} {" ".join(map(hash_tagged, post.keywords))}',
+            text=format_post(post),
         )
 
-    async def start(self):
+    async def start(self) -> None:
         while True:
             actual_posts = await self.parser.parse()
             unpublished_posts = self.get_unpublished_posts(
