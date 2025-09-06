@@ -31,11 +31,40 @@ class Service:
     ) -> list[NewsPost]:
         return [post for post in actual_posts if post not in old_posts]
 
+    @staticmethod
+    def split_message(text: str, max_length: int = 4096) -> list[str]:
+        if len(text) <= max_length:
+            return [text]
+        
+        parts: list[str] = []
+        while text:
+            if len(text) <= max_length:
+                parts.append(text)
+                break
+                
+            # Try to split by newlines first
+            split_idx = text[:max_length].rfind('\n')
+            if split_idx == -1:
+                # If no newlines, try to split by dots (end of sentences)
+                split_idx = text[:max_length].rfind('.')
+                if split_idx == -1:
+                    # If no good splitting point, just split at max length
+                    split_idx = max_length - 1
+            
+            parts.append(text[:split_idx + 1])
+            text = text[split_idx + 1:].lstrip()
+        
+        return parts
+
     async def send_post(self, post: NewsPost) -> None:
-        await self.bot.send_message(
-            chat_id=self.chat_id,
-            text=format_post(post),
-        )
+        message = format_post(post)
+        parts = self.split_message(message)
+        
+        for part in parts:
+            await self.bot.send_message(
+                chat_id=self.chat_id,
+                text=part,
+            )
 
     async def start(self) -> None:
         while True:
