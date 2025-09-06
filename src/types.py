@@ -1,8 +1,14 @@
+from dataclasses import dataclass
 from datetime import datetime
-from typing import NamedTuple
 
 
-class NewsPost(NamedTuple):
+@dataclass(frozen=True)
+class AttachedFile:
+    title: str
+    url: str
+
+@dataclass(frozen=True)
+class NewsPost:
     title: str
     description: str
     posted_at: datetime
@@ -10,3 +16,4 @@ class NewsPost(NamedTuple):
     link: str
     category: str
     keywords: list[str]
+    attachments: list[AttachedFile]

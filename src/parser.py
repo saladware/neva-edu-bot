@@ -8,7 +8,7 @@ import dateparser
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup, Tag
 
-from .types import NewsPost
+from .types import NewsPost, AttachedFile
 
 
 class BaseNewsParser(ABC):
@@ -56,9 +56,10 @@ class Bs4NewsParser(BaseNewsParser):
             )
             important = "itemIsFeatured" in post_markup["class"]
             category = post_markup.find("div", "info").a.get_text()
-            keywords_div = post_markup.find("div", "add").find(
-                string=re.compile(".*Клю.*")
-            )
+            add_div = post_markup.find("div", "add")
+            keywords_div = add_div.find(string=re.compile(".*Клю.*"))
+            
+            # Парсим ключевые слова
             if keywords_div is None:
                 keywords = []
             else:
@@ -66,6 +67,19 @@ class Bs4NewsParser(BaseNewsParser):
                     cast("str", a.get_text()).strip()
                     for a in keywords_div.parent.find_all("a")
                 ]
+            
+            # Парсим прикрепленные файлы
+            attachments_div = add_div.find(string=re.compile(".*Прикрепленные файлы.*"))
+            attachments = list[AttachedFile]()
+            if attachments_div is not None:
+                for a in attachments_div.parent.find_all("a"):
+                    if not isinstance(a, Tag):
+                        continue
+                    title = cast(str, a.get("title", "")).strip()
+                    if not title:
+                        title =  a.get_text().strip()
+                    url = self.BASE_URL + cast(str, a["href"])
+                    attachments.append(AttachedFile(title=title, url=url))
 
             post = NewsPost(
                 title=title,
@@ -75,6 +89,7 @@ class Bs4NewsParser(BaseNewsParser):
                 link=link,
                 category=category,
                 keywords=keywords,
+                attachments=attachments,
             )
             posts.append(post)
 
